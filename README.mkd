@@ -1,0 +1,37 @@
+### filterpipe.lua
+
+A Lua function that pipes a Lua string through an external command and
+returns the result as another Lua string. The function only catches
+data from stdout.
+
+#### Dependencies
+
+* lua-posix
+
+#### Synopsis
+```Lua
+local fpipe = require 'filterpipe'
+
+local result = fpipe( input, command, ... )
+-- where $input is the input string, $command is the command to execute
+-- and the ellipsis ... represents arguments to be passed through to
+-- $command. The function returns a Lua string $result.
+```
+
+#### Example: Aligned output using the column command:
+
+```Lua
+local fpipe = require 'filterpipe'
+
+io.output():write(
+  fpipe( "abc?def?ghi\njklmnop?qr\nstu\tvwx\n", -- the trailing \n is required by column
+    "column", -- the command
+    "-t", "-s?")) -- parameters
+```
+
+Output:
+```
+abc      def  ghi
+jklmnop  qr
+stu	vwx
+```

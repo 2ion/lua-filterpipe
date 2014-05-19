@@ -51,7 +51,7 @@ jklmnop  qr
 stu	vwx
 ```
 
-### Example: Columnate and reverse output of the mount command
+#### Example: Columnate and reverse output of the mount command
 
 ```Lua
 local fpipe = require 'filterpipe'

@@ -17,6 +17,8 @@ local table = table
 -- wrote to stdout.
 
 return function (input, cmd, ...)
+  local input = input
+  local cmd = cmd
   local d = {}
   local r, w = posix.pipe()
   local pid = posix.fork()

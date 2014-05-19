@@ -16,7 +16,7 @@ local table = table
 -- Returns a Lua string containing what cmd
 -- wrote to stdout.
 
-return function (input, cmd, ...)
+local function pipe(input, cmd, ...)
   local input = input
   local cmd = cmd
   local d = {}
@@ -52,3 +52,13 @@ return function (input, cmd, ...)
   posix.wait(pid)
   return table.concat(d)
 end
+
+local function _(tubes, input)
+  local i = input or ""
+  for __,tube in ipairs(tubes) do
+    i = pipe(i, table.unpack(tube)) or ""
+  end
+  return i
+end
+
+return { pipe = pipe, _ = _ }

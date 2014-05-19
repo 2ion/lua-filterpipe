@@ -4,6 +4,12 @@ A Lua function that pipes a Lua string through an external command and
 returns the result as another Lua string. The function only catches
 data from stdout.
 
+Also provided is a helper function that mimics building a pipeline on
+the command line so that you can write <code>$(mount | column -t |
+tac)</code> in handy Lua.
+
+Examples are provided below.
+
 #### Dependencies
 
 * lua-posix
@@ -12,13 +18,22 @@ data from stdout.
 ```Lua
 local fpipe = require 'filterpipe'
 
-local result = fpipe( input, command, ... )
+local result = fpipe.pipe( input, command, ... )
 -- where $input is the input string, $command is the command to execute
 -- and the ellipsis ... represents arguments to be passed through to
 -- $command. The function returns a Lua string $result.
+
+local result2 = fpipe._( t, input )
+-- where $t is an array of tables that are structured like { command,
+-- ...} where $command is the command to execute and all other array
+-- elements represent arguments passed through to $command. All commands
+-- in the array will be executed sequentially and the output be piped
+-- through the whole pipeline. An initial $input (a Lua string) can be
+-- provided, too. The function returns a Lua string $result2.
+
 ```
 
-#### Example: Aligned output using the column command:
+#### Example: Aligned output using the column command
 
 ```Lua
 local fpipe = require 'filterpipe'
@@ -34,4 +49,37 @@ Output:
 abc      def  ghi
 jklmnop  qr
 stu	vwx
+```
+
+### Example: Columnate and reverse output of the mount command
+
+```Lua
+local fpipe = require 'filterpipe'
+
+-- equals $(mount | columnt -t | tac) on the command line
+io.output():write(
+  fpipe._{ {"mount"}, {"column", "-t"}, {"tac"} }
+)
+```
+
+Example output on my local machine:
+```
+binfmt_misc                        on  /proc/sys/fs/binfmt_misc  type  binfmt_misc  (rw,nosuid,nodev,noexec,relatime)
+cgroups                            on  /sys/fs/cgroup            type  cgroup       (rw,relatime,cpu,blkio)
+/dev/mapper/vgroot-home--overflow  on  /mnt/home-overflow        type  xfs          (rw,relatime,attr2,inode64,noquota)
+/dev/mapper/vgroot-overflow        on  /mnt/overflow             type  ext4         (rw,relatime,data=ordered)
+/dev/mapper/vgroot-home            on  /home                     type  ext4         (rw,relatime,data=ordered)
+/dev/sda1                          on  /boot                     type  ext2         (rw,relatime,errors=continue)
+tmpfs                              on  /tmp                      type  tmpfs        (rw,nosuid,relatime,size=4194304k,mode=777)
+fusectl                            on  /sys/fs/fuse/connections  type  fusectl      (rw,relatime)
+tmpfs                              on  /run/shm                  type  tmpfs        (rw,nosuid,nodev,noexec,relatime,size=1553760k)
+/dev/sda1                          on  /media/usbhd-sda1         type  ext2         (rw,relatime,errors=continue)
+pstore                             on  /sys/fs/pstore            type  pstore       (rw,relatime)
+tmpfs                              on  /run/lock                 type  tmpfs        (rw,nosuid,nodev,noexec,relatime,size=5120k)
+/dev/mapper/vgroot-root            on  /                         type  ext4         (rw,relatime,errors=remount-ro,data=ordered)
+tmpfs                              on  /run                      type  tmpfs        (rw,nosuid,noexec,relatime,size=776884k,mode=755)
+devpts                             on  /dev/pts                  type  devpts       (rw,nosuid,noexec,relatime,gid=5,mode=620)
+udev                               on  /dev                      type  devtmpfs     (rw,relatime,size=10240k,nr_inodes=968868,mode=755)
+proc                               on  /proc                     type  proc         (rw,nosuid,nodev,noexec,relatime)
+sysfs                              on  /sys                      type  sysfs        (rw,nosuid,nodev,noexec,relatime)
 ```

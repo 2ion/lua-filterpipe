@@ -20,9 +20,9 @@ local function pipe(input, cmd, ...)
   local input = input
   local cmd = cmd
   local d = {}
+
   local r, w = posix.pipe()
   local pid = posix.fork()
-
   if pid == 0 then
     posix.close(r)
     posix.write(w, input)

@@ -10,6 +10,6 @@ io.output():write(
 print("\nExample 2\n")
 
 -- shorthand notation for pipes
-io.output():write(fpipe._{{"mount"},{"column", "-t"},{"tac"}})
+io.output():write(fpipe._{{"mount"},{"column", "-t"},{"tac"},{"sort","-k5"}})
 
 

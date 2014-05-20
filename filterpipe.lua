@@ -26,7 +26,7 @@ local function pipe(input, cmd, ...)
   if pid == 0 then
     posix.close(r)
     posix.write(w, input)
-    posix._exit(1)
+    posix._exit(0)
   end
   posix.close(w)
 
@@ -35,8 +35,8 @@ local function pipe(input, cmd, ...)
   if pid2 == 0 then
     posix.dup2(r, 0)
     posix.dup2(w2, 1)
-    posix.execp(cmd, ...)
-    posix._exit(2)
+    local ret = posix.execp(cmd, ...)
+    posix._exit(ret)
   end
   posix.close(w2)
   posix.close(r)
